@@ -1,0 +1,76 @@
+import time
+from fastapi import FastAPI, Request, Response
+import uvicorn
+from core.config import settings
+from core.exceptions import register_exception_handlers, AppException
+from core.logging import get_logger, configure_logging
+
+from api.router import router as api_router
+from core.metrics import metrics_response, record_request
+
+
+logger = get_logger(__name__)
+
+
+# Application Factory
+def create_app() -> FastAPI:
+    """
+    Create and configure the FastAPI application.
+    Includes routes, middleware, metrics, and exception handling.
+    """
+    configure_logging()
+    app = FastAPI(title=settings.APP_NAME, debug=settings.DEBUG)
+
+    # register exception handlers
+    register_exception_handlers(app=app)
+
+    # include API router
+    app.include_router(api_router)
+
+    # Prometheus Metrics Endpoint
+    @app.get("/metrics", include_in_schema=False)
+    async def metrics():
+        return metrics_response()
+
+    #  Middleware: Record basic request metrics
+    @app.middleware("http")
+    async def metrics_middleware(request: Request, call_next):
+        """
+        Middleware that:
+        - Records request count for Prometheus
+        - Adds request processing time to response headers
+        """
+        start = time.time()
+        try:
+            response: Response = await call_next(request)
+        except Exception as e:
+            logger.exception("Unhandled exception")
+            raise
+
+        process_time = round((time.time() - start) * 1000, 2)
+        record_request(request.method, request.url.path, str(response.status_code))
+
+        # total processing time recording in header
+        response.headers["X-Process-Time-MS"] = str(process_time)
+        return response
+
+    @app.get("/", include_in_schema=False)
+    async def root():
+        """
+        Sample root route to confirm the app is running
+        """
+        return {"app": settings.APP_NAME, "env": settings.ENV}
+
+    return app
+
+
+# App initialization
+app = create_app()
+
+if __name__ == "__main__":
+    uvicorn.run(
+        "app.main:app",
+        host=settings.HOST,
+        port=settings.PORT,
+        reload=settings.DEBUG,
+    )
