@@ -1,0 +1,30 @@
+name: CI
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+        continue-on-error: false
+      - name: Install Dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest ruff mypy
+        continue-on-error: false
+      - name: Lint with ruff
+        run: ruff check .
+        continue-on-error: false
+      - name: Type check with mypy
+        run: mypy app
+        continue-on-error: false
+      - name: Run tests
+        run: pytest -q
+        continue-on-error: false
