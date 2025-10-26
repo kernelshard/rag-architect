@@ -1,12 +1,15 @@
 import time
 from fastapi import FastAPI, Request, Response
 import uvicorn
-from core.config import settings
-from core.exceptions import register_exception_handlers
-from core.logging import get_logger, configure_logging
 
-from api.router import router as api_router
-from core.metrics import metrics_response, record_request
+from .core.config import settings
+from .core.exceptions import register_exception_handlers, AppException
+from .core.logging import get_logger, configure_logging
+
+from .api.router import router as api_router
+from .core.metrics import metrics_response, record_request
+
+# from app.core.metrics import metrics_response, record_request
 
 
 logger = get_logger(__name__)
@@ -22,7 +25,7 @@ def create_app() -> FastAPI:
     application = FastAPI(title=settings.APP_NAME, debug=settings.DEBUG)
 
     # register exception handlers
-    register_exception_handlers(app=app)
+    register_exception_handlers(app=application)
 
     # include API router
     application.include_router(api_router)
@@ -61,7 +64,7 @@ def create_app() -> FastAPI:
         """
         return {"app": settings.APP_NAME, "env": settings.ENV}
 
-    return app
+    return application
 
 
 # App initialization
