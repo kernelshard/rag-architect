@@ -1,7 +1,5 @@
-from prometheus_client import Counter, generate_latest, CONTENT_TYPE_LATEST
-
 from fastapi import Response
-
+from prometheus_client import CONTENT_TYPE_LATEST, Counter, generate_latest
 
 # A Counter metric that tracks total HTTP requests.
 # Labels allow metrics to be shown by:

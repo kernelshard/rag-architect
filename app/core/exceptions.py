@@ -1,8 +1,9 @@
-from typing import Any, Dict
-from fastapi import status, FastAPI
+from typing import Any
+
+from fastapi import FastAPI, status
+from fastapi.exceptions import HTTPException
 from fastapi.requests import Request
 from fastapi.responses import JSONResponse
-from fastapi.exceptions import HTTPException
 
 
 class AppException(Exception):
@@ -14,7 +15,7 @@ class AppException(Exception):
         self,
         message: str,
         status_code: int = status.HTTP_400_BAD_REQUEST,
-        payload: Dict[str, Any] | None = None,
+        payload: dict[str, Any] | None = None,
     ):
         self.message = message
         self.status_code = status_code
@@ -34,7 +35,7 @@ def register_exception_handlers(app: FastAPI):
         Converts AppException into a JSON response.
         Includes the error message and optional payload details.
         """
-        content: Dict[str, Any] = {"error": exc.message}
+        content: dict[str, Any] = {"error": exc.message}
 
         # If there is additional payload, include it under 'details'
         if exc.payload:
