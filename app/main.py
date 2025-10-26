@@ -2,7 +2,7 @@ import time
 from fastapi import FastAPI, Request, Response
 import uvicorn
 from core.config import settings
-from core.exceptions import register_exception_handlers, AppException
+from core.exceptions import register_exception_handlers
 from core.logging import get_logger, configure_logging
 
 from api.router import router as api_router
@@ -19,21 +19,21 @@ def create_app() -> FastAPI:
     Includes routes, middleware, metrics, and exception handling.
     """
     configure_logging()
-    app = FastAPI(title=settings.APP_NAME, debug=settings.DEBUG)
+    application = FastAPI(title=settings.APP_NAME, debug=settings.DEBUG)
 
     # register exception handlers
     register_exception_handlers(app=app)
 
     # include API router
-    app.include_router(api_router)
+    application.include_router(api_router)
 
     # Prometheus Metrics Endpoint
-    @app.get("/metrics", include_in_schema=False)
+    @application.get("/metrics", include_in_schema=False)
     async def metrics():
         return metrics_response()
 
     #  Middleware: Record basic request metrics
-    @app.middleware("http")
+    @application.middleware("http")
     async def metrics_middleware(request: Request, call_next):
         """
         Middleware that:
@@ -43,8 +43,8 @@ def create_app() -> FastAPI:
         start = time.time()
         try:
             response: Response = await call_next(request)
-        except Exception as e:
-            logger.exception("Unhandled exception")
+        except Exception:
+            logger.exception(f"Unhandled exception")
             raise
 
         process_time = round((time.time() - start) * 1000, 2)
@@ -54,7 +54,7 @@ def create_app() -> FastAPI:
         response.headers["X-Process-Time-MS"] = str(process_time)
         return response
 
-    @app.get("/", include_in_schema=False)
+    @application.get("/", include_in_schema=False)
     async def root():
         """
         Sample root route to confirm the app is running
