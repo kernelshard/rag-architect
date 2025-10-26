@@ -3,3 +3,5 @@ uvicorn[standard]>=0.30.6
 pydantic>=2.12.3
 prometheus_client>=0.21.1
 pydantic-settings[dotenv]==2.11.0
+pytest>=8.4.2
+httpx>=0.28.2
