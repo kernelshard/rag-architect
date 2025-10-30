@@ -1,13 +1,14 @@
+import time
+from typing import Any
+
 from fastapi import APIRouter
 
-from core import start_time
+from app.core import start_time
 
-import time
-
-router = APIRouter(prefix="/api", tags=["api"])
+router = APIRouter(prefix="/api/v1", tags=["api"])
 
 
 @router.get("/ping", summary="Liveness / simple healthcheck")
-async def pint():
-    uptime = time.time()
+async def ping() -> dict[str, Any]:
+    uptime = time.time() - start_time
     return {"status": "ok", "message": "pong", "uptime_seconds": round(uptime, 2)}
