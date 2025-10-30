@@ -6,6 +6,7 @@ import uvicorn
 from fastapi import FastAPI, Request, Response
 
 from .api.router import router as api_router
+from .ingestion.api import router as ingestion_router
 from .core.config import settings
 from .core.exceptions import register_exception_handlers
 from .core.logging import configure_logging, get_logger
@@ -29,6 +30,7 @@ def create_app() -> FastAPI:
 
     # include API router
     application.include_router(api_router)
+    application.include_router(ingestion_router)
 
     # Prometheus Metrics Endpoint
     @application.get("/metrics", include_in_schema=False)

@@ -3,10 +3,11 @@ uvicorn[standard]>=0.30.6
 pydantic>=2.12.3
 prometheus_client>=0.21.1
 pydantic-settings[dotenv]==2.11.0
-structlog>=25.4.0
+structlog>=25.5.0
 httpx>=0.27.0
 
 pytest>=8.4.2
+pytest-asyncio==1.2.0
 pre-commit>=4.0.0
 ruff>=0.14.2
 mypy>=1.6.0
