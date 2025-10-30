@@ -4,7 +4,7 @@ from app.core.interfaces import BaseEmbeddingRepository
 
 
 class InMemoryEmbeddingRepo(BaseEmbeddingRepository):
-    def __init__(self):
+    def __init__(self) -> None:
         self.store: dict[str, dict] = {}
 
     async def store_embedding(

@@ -2,7 +2,7 @@ import asyncio
 
 from app.core.interfaces import BaseEmbeddingRepository
 from app.core.constants import IngestionStatus
-from ingestion.models import IngestResponse, IngestRequest
+from app.ingestion.models import IngestResponse, IngestRequest
 
 EMBED_DIM = 5  # tiny for tests
 
