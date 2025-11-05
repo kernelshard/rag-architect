@@ -4,7 +4,7 @@ from fastapi import Response
 from prometheus_client import CONTENT_TYPE_LATEST, Counter, generate_latest
 
 # Identify which service (ingestion, retrieval, generation, etc.)
-APP_NAME = os.getenv("APP_NAME", "rag_mastery")
+APP_NAME = os.getenv("APP_NAME", "rag_architect")
 
 
 # Global request Counter - — tracked via middleware for every request
