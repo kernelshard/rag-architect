@@ -2,10 +2,10 @@ from fastapi import APIRouter, Depends
 
 from app.core.interfaces import BaseEmbeddingRepository
 from app.ingestion.models import IngestResponse, IngestRequest
-from .deps import get_embedding_repo
-from .service import ingest_document
+from app.ingestion.deps import get_embedding_repo
+from app.ingestion.service import ingest_document
 
-router = APIRouter(prefix="/api/v1/ingestion", tags=["ingestion"])
+router = APIRouter(prefix="/ingestion", tags=["ingestion"])
 
 
 @router.post(

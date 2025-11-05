@@ -1,9 +1,9 @@
 from app.core.interfaces import BaseEmbeddingRepository
-from .repository import InMemoryEmbeddingRepo
-
-_repo = InMemoryEmbeddingRepo()
+from app.core.repositories import global_vector_repo
 
 
-def get_embedding_repo() -> BaseEmbeddingRepository:
-    # TODO: Later we will create/init Qdrant client here
-    return _repo
+async def get_embedding_repo() -> BaseEmbeddingRepository:
+    """
+    Shared vector repository dependency for ingestion.
+    """
+    return global_vector_repo
