@@ -20,5 +20,5 @@ async def test_ingest_document_saves_to_repo():
     assert resp.doc_id == "doc-01"
     assert "doc-01" in repo.store
     saved = repo.store["doc-01"]
-    assert isinstance(saved["vectors"], list)
+    assert isinstance(saved["vector"], list)
     assert "metadata" in saved

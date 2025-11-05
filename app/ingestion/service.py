@@ -23,11 +23,11 @@ async def ingest_document(
     # Simulate embedding generation
     await asyncio.sleep(0)
 
-    vectors = _mock_embedding(text=request.text)
+    embedding = _mock_embedding(text=request.text)
 
     # Persist embeddings vua repo
     await repo.store_embedding(
-        doc_id=request.doc_id, vectors=vectors, metadata=request.metadata or {}
+        doc_id=request.doc_id, vector=embedding, metadata=request.metadata or {}
     )
 
     return IngestResponse(
