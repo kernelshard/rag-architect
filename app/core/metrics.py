@@ -1,15 +1,22 @@
+import os
+
 from fastapi import Response
 from prometheus_client import CONTENT_TYPE_LATEST, Counter, generate_latest
 
-# A Counter metric that tracks total HTTP requests.
+# Identify which service (ingestion, retrieval, generation, etc.)
+APP_NAME = os.getenv("APP_NAME", "rag_mastery")
+
+
+# Global request Counter - — tracked via middleware for every request
 # Labels allow metrics to be shown by:
+# - App name
 # - HTTP method (GET, POST, etc.)
 # - endpoint path (/users, /items/{id}, etc.)
 # - HTTP status code (200, 404, 500, etc.)
-REQUEST_COUNTER = Counter(
+APP_REQUEST_COUNTER = Counter(
     "app_requests_total",  # metric name
     "Total number of HTTP requests",  # description shown in Prometheus
-    ["method", "endpoint", "http_status"],  # metric dimensions
+    ["app_name", "method", "endpoint", "http_status"],  # metric dimensions
 )
 
 
@@ -22,8 +29,8 @@ def record_request(method: str, endpoint: str, http_status: str):
         endpoint(str): The path accessed (e.g. '/api/users')
         http_status (str): The response status code (e.g. '200', '404').
     """
-    REQUEST_COUNTER.labels(
-        method=method, endpoint=endpoint, http_status=http_status
+    APP_REQUEST_COUNTER.labels(
+        app_name=APP_NAME, method=method, endpoint=endpoint, http_status=http_status
     ).inc()  # incr by 1
 
 
