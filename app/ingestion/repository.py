@@ -8,6 +8,6 @@ class InMemoryEmbeddingRepo(BaseEmbeddingRepository):
         self.store: dict[str, dict] = {}
 
     async def store_embedding(
-        self, doc_id: str, vectors: list[float], metadata: dict[str, Any]
+        self, doc_id: str, vector: list[float], metadata: dict[str, Any]
     ) -> None:
-        self.store[doc_id] = {"vectors": vectors, "metadata": metadata}
+        self.store[doc_id] = {"vector": vector, "metadata": metadata}

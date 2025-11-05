@@ -6,3 +6,6 @@ class IngestionStatus(StrEnum):
     Processing = "processing"
     Completed = "completed"
     Failed = "failed"
+
+
+DefaultTopK: int = 5

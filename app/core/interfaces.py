@@ -1,14 +1,15 @@
 from abc import ABC, abstractmethod
-from typing import Any, TypedDict
+from dataclasses import dataclass
+from typing import Any
 
 
-class SearchResult(TypedDict, total=False):
+@dataclass(frozen=True)
+class SearchResult:
     """Represents a single search hit result from vector store."""
 
     id: str
     score: float
-    text: str
-    metadata: dict[str, Any]
+    metadata: dict[str, Any] | None = None
 
 
 class BaseEmbeddingRepository(ABC):
@@ -18,14 +19,14 @@ class BaseEmbeddingRepository(ABC):
     async def store_embedding(
         self,
         doc_id: str,
-        vectors: list[float],
+        vector: list[float],
         metadata: dict[str, Any],
     ) -> None:
         """Persist an embedding vector and associated metadata.
 
         Args:
             doc_id: The unique id of the document.
-            vectors: The embedding values, as a list of floats.
+            vector: The embedding values, as a list of floats.
             metadata: The extra infos embedding(e.g. source, title, timestamp etc.).
         """
         ...
