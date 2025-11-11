@@ -40,6 +40,7 @@ async def retrieve_documents(
     Args:
         request: validated RetrievalRequest with query text and top_k
         repo: injected repository implementing BaseVectorSearchRepository
+        include_metadata: whether to include metadata in results
 
     Returns:
         RetrievalResponse with top_k ranked result chunks

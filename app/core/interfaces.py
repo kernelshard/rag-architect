@@ -55,3 +55,31 @@ class BaseVectorSearchRepository(ABC):
             include_metadata: Whether to include metadata in the query.
         """
         ...
+
+
+class BaseRetriever(ABC):
+    """
+    Abstract interface for a document retriever.
+    """
+
+    @abstractmethod
+    async def retrieve(self, query: str, top_k: int) -> list[dict[str, Any]]:
+        """
+        Retrieve top-k documents based on the input query.
+
+        Args:
+            query: The input query string.
+            top_k: The number of top relevant documents to retrieve.
+
+        Returns:
+            A list of dictionaries representing the retrieved documents.
+        """
+        ...
+
+
+class BaseGenerator(ABC):
+    """
+    Abstract interface for a text generator."""
+
+    @abstractmethod
+    async def generate(self, prompt: str) -> str: ...
