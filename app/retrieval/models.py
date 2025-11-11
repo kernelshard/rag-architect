@@ -12,7 +12,7 @@ class RetrievalRequest(BaseModel):
         description="Optional metadata filter to restrict search resources (e.g. tag=value, tag ...",
     )
     include_metadata: bool = Field(
-        True, description="Whether to include metadata in the retrieval results"
+        default=True, description="Whether to include metadata in the retrieval results"
     )
 
     model_config = {"extra": "ignore"}
