@@ -1,4 +1,5 @@
 from app.core.interfaces import BaseRetriever
+from app.generation.mock_generator import MockGenerator
 from app.retrieval.models import RetrievalRequest
 from app.retrieval.service import retrieve_documents
 from app.core.repositories import global_vector_repo
@@ -32,3 +33,8 @@ def get_retriever() -> BaseRetriever:
     Returns the global retriever instance.
     """
     return _retriever
+
+
+async def get_generator():
+    # swap with real generator later
+    yield MockGenerator()

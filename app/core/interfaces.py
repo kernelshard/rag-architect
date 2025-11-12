@@ -75,3 +75,11 @@ class BaseRetriever(ABC):
             A list of dictionaries representing the retrieved documents.
         """
         ...
+
+
+class BaseGenerator(ABC):
+    """
+    Abstract interface for a text generator."""
+
+    @abstractmethod
+    async def generate(self, prompt: str) -> str: ...
