@@ -1,7 +1,6 @@
-import asyncio
-
 from app.core.logging import get_logger
 from app.generation.models import GenerateAnswer, GenerationRequest, GenerationResponse
+from app.generation.prompt_builder import build_prompt
 
 from app.core.interfaces import BaseRetriever
 
@@ -9,7 +8,7 @@ from app.core.interfaces import BaseRetriever
 logger = get_logger(__name__)
 
 
-async def generate_anwer(
+async def generate_answer(
     req: GenerationRequest, retriever: BaseRetriever
 ) -> GenerationResponse:
     """
@@ -24,22 +23,21 @@ async def generate_anwer(
         GenerationResponse: The response containing the original query and generated answer.
     """
     # retrieve top-k relevant documents based on the query
+    logger.info(f"Generation started for query='{req.query}'")
+
     retrieved_chunks = await retriever.retrieve(req.query, req.context_size)
     """
     e.g: retrieved_chunks = [
-        {"doc_id": "1", "content": "Document content 1", "metadata": {"source": "source1"}},
-        {"doc_id": "2", "content": "Document content 2", "metadata": {"source": "source2"}},
+        {"doc_id": "1", "score": 0.8, "metadata": {"source": "source1"}},
+        {"doc_id": "2", "score": 0.7, "metadata": {"source": "source2"}},
         ...
     ]
+    Note: Does not include original text; only doc_id and metadata.
     """
+    logger.debug(f"Retrieved {len(retrieved_chunks)} chunks")
 
-    await asyncio.sleep(0.1)  # simulate llm latency
+    _ = build_prompt(req.query, retrieved_chunks)
 
-    # e.g context = [
-    #     {"doc_id": "1", "content": "Document content 1", "metadata": {"source": "source1"}},
-    #     {"doc_id": "2", "content": "Document content 2", "metadata": {"source": "source2"}},
-    #     ...
-    # ]
     synthesized = (
         " ".join(chunk["doc_id"] for chunk in retrieved_chunks) or "No context found."
     )
