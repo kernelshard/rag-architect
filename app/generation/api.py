@@ -4,7 +4,7 @@ from app.core.interfaces import BaseRetriever
 from app.core.logging import get_logger
 from app.generation.deps import get_retriever
 from app.generation.models import GenerationRequest, GenerationResponse
-from app.generation.service import generate_anwer
+from app.generation.service import generate_answer
 
 logger = get_logger(__name__)
 
@@ -23,4 +23,4 @@ async def generate_endpoint(
     logger.info(
         "Received generation request", query=req.query, context_size=req.context_size
     )
-    return await generate_anwer(req, retriever)
+    return await generate_answer(req, retriever)
