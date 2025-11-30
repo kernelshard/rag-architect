@@ -1,7 +1,7 @@
 import os
 
 from fastapi import Response
-from prometheus_client import CONTENT_TYPE_LATEST, Counter, generate_latest
+from prometheus_client import CONTENT_TYPE_LATEST, Counter, generate_latest, Histogram
 
 # Identify which service (ingestion, retrieval, generation, etc.)
 APP_NAME = os.getenv("APP_NAME", "rag_architect")
@@ -17,6 +17,20 @@ APP_REQUEST_COUNTER = Counter(
     "app_requests_total",  # metric name
     "Total number of HTTP requests",  # description shown in Prometheus
     ["app_name", "method", "endpoint", "http_status"],  # metric dimensions
+)
+
+# Prompt build duration histogram
+APP_PROMPT_BUILD_SECONDS = Histogram(
+    "app_prompt_build_seconds",
+    "Time taken to build prompts",
+    ["app_name"],
+)
+
+# LLM generation latency histogram
+APP_GENERATION_LATENCY_SECONDS = Histogram(
+    "app_generation_latency_seconds",
+    "Time taken for LLM answer generation",
+    ["app_name"],
 )
 
 
