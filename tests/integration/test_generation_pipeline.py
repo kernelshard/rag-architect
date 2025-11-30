@@ -53,6 +53,6 @@ async def test_generation_pipeline_e2e():
         # validate coherence between retrieved context and generated answer
         assert generation_data["query"] == generation_payload["query"]
         assert "Mock answer" in generation_data["answer"]["text"]
-        assert len(generation_data["answer"]["used_contexts"]) > 0, (
+        assert len(generation_data["answer"]["used_context"]) > 0, (
             "No contexts used in generation"
         )

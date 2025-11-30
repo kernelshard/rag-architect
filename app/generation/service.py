@@ -1,15 +1,19 @@
+import time
 from app.core.logging import get_logger
+from app.core.metrics import APP_NAME, APP_PROMPT_BUILD_SECONDS
 from app.generation.models import GenerateAnswer, GenerationRequest, GenerationResponse
 from app.generation.prompt_builder import build_prompt
 
-from app.core.interfaces import BaseRetriever
+from app.core.interfaces import BaseGenerator, BaseRetriever
 
 
 logger = get_logger(__name__)
 
 
 async def generate_answer(
-    req: GenerationRequest, retriever: BaseRetriever
+    req: GenerationRequest,
+    retriever: BaseRetriever,
+    generator: BaseGenerator,
 ) -> GenerationResponse:
     """
     generate handles the text generation process by retrieving relevant documents
@@ -36,20 +40,22 @@ async def generate_answer(
     """
     logger.debug(f"Retrieved {len(retrieved_chunks)} chunks")
 
-    _ = build_prompt(req.query, retrieved_chunks)
+    # prompt build metrics
+    t0 = time.monotonic()
+    prompt = build_prompt(req.query, retrieved_chunks)
+    APP_PROMPT_BUILD_SECONDS.labels(app_name=APP_NAME).observe(time.monotonic() - t0)
 
-    synthesized = (
-        " ".join(chunk["doc_id"] for chunk in retrieved_chunks) or "No context found."
-    )
+    # Generation latency metrics
+    t1 = time.monotonic()
+    answer_text = await generator.generate(prompt=prompt)
+    APP_PROMPT_BUILD_SECONDS.labels(app_name=APP_NAME).observe(time.monotonic() - t1)
 
-    logger.info(
-        f"Generated answer for query='{req.query}' using {len(retrieved_chunks)}"
-    )
+    logger.info(f"Generated answer for query='{req.query}'")
 
     return GenerationResponse(
         query=req.query,
         answer=GenerateAnswer(
-            text=f"Mock answer: {synthesized}",
-            used_contexts=retrieved_chunks,
+            text=answer_text,
+            used_context=retrieved_chunks,
         ),
     )

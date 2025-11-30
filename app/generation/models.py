@@ -20,7 +20,7 @@ class GenerateAnswer(BaseModel):
     """
 
     text: str
-    used_contexts: list[dict[str, Any]]
+    used_context: list[dict[str, Any]]
 
 
 class GenerationResponse(BaseModel):
