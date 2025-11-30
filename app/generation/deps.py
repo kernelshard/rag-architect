@@ -1,8 +1,11 @@
+from app.core.constants import GeneratorBackend
 from app.core.interfaces import BaseRetriever
+from app.generation.adapters.ollama_adapter import OllamaGenerator
 from app.generation.mock_generator import MockGenerator
 from app.retrieval.models import RetrievalRequest
 from app.retrieval.service import retrieve_documents
 from app.core.repositories import global_vector_repo
+from app.core.config import settings
 
 
 class RetrievalAdapter(BaseRetriever):
@@ -35,6 +38,20 @@ def get_retriever() -> BaseRetriever:
     return _retriever
 
 
-async def get_generator():
-    # swap with real generator later
-    yield MockGenerator()
+async def get_generator(
+    use_real: bool = settings.USE_REAL_GENERATOR,
+    backend: GeneratorBackend = settings.GENERATOR_BACKEND,
+):
+    """
+    Returns a generator instance based on configuration.
+    """
+    # precedence wise use_real overrides backend
+    if not use_real:
+        yield MockGenerator()
+    else:
+        if backend == GeneratorBackend.Mock:
+            yield MockGenerator()
+        elif backend == GeneratorBackend.Ollama:
+            yield OllamaGenerator()
+        else:
+            yield OllamaGenerator()  # Default to OllamaGenerator for now

@@ -1,6 +1,8 @@
 from pydantic import Field
 from pydantic_settings import BaseSettings
 
+from app.core.constants import GeneratorBackend
+
 
 class Settings(BaseSettings):
     APP_NAME: str = "rag_mastery"
@@ -9,12 +11,15 @@ class Settings(BaseSettings):
     LOG_LEVEL: str = Field(default="INFO", alias="LOG_LEVEL")
     HOST: str = Field(default="0.0.0.0", alias="HOST")
     PORT: int = Field(default=8000, alias="PORT")
+    USE_REAL_GENERATOR: bool = False
+    GENERATOR_BACKEND: GeneratorBackend = GeneratorBackend.Mock
 
     model_config = {
         "env_file": ".env",
         "env_file_encoding": "utf-8",
         "extra": "ignore",
         "populate_by_name": True,  # allowing alias mapping
+        "use_enum_values": True,  # store enum values directly
     }
 
 
