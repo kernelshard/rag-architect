@@ -1,5 +1,6 @@
 from app.core.constants import GeneratorBackend
-from app.core.interfaces import BaseRetriever
+from app.core.interfaces import BaseGenerator, BaseRetriever
+from app.generation.adapters.dryrun_adapter import DryRunGenerator
 from app.generation.adapters.ollama_adapter import OllamaGenerator
 from app.generation.mock_generator import MockGenerator
 from app.retrieval.models import RetrievalRequest
@@ -18,12 +19,12 @@ class RetrievalAdapter(BaseRetriever):
         self, query: str, top_k: int, include_metadata: bool = True
     ) -> list[dict]:
         request = RetrievalRequest(query=query, top_k=top_k, filters=None)
-        reponse = await retrieve_documents(request, global_vector_repo)
+        response = await retrieve_documents(request, global_vector_repo)
         # It converts [RetrievedChunk, ...] to [dict, ...] cause GenerateAnswer.used_contexts expects list[dict]
         # e.g: response = RetrievalResponse(results=[RetrievedChunk(...), ...])
         # so after conversion res becomes:
         # [{"doc_id": "1", "content": "Document content 1", "metadata": {"source": "source1"}}, ...]
-        res = [r.model_dump() for r in reponse.results]
+        res = [r.model_dump() for r in response.results]
         return res
 
 
@@ -45,13 +46,20 @@ async def get_generator(
     """
     Returns a generator instance based on configuration.
     """
-    # precedence wise use_real overrides backend
+    # Precedence: if use_real=False → always Mock
+    generator: BaseGenerator
     if not use_real:
-        yield MockGenerator()
+        generator = MockGenerator()
     else:
-        if backend == GeneratorBackend.Mock:
-            yield MockGenerator()
-        elif backend == GeneratorBackend.Ollama:
-            yield OllamaGenerator()
-        else:
-            yield OllamaGenerator()  # Default to OllamaGenerator for now
+        match backend:
+            case GeneratorBackend.Mock:
+                generator = MockGenerator()
+            case GeneratorBackend.DryRun:
+                generator = DryRunGenerator()
+            case GeneratorBackend.OPENAI:
+                generator = OllamaGenerator()
+            case GeneratorBackend.Ollama:
+                generator = OllamaGenerator()
+            case _:
+                generator = OllamaGenerator()  # Default to OllamaGenerator for now
+    yield generator
