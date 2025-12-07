@@ -21,3 +21,4 @@ class GeneratorBackend(StrEnum):
     Mock = "mock"
     OPENAI = "openai"
     Ollama = "ollama"
+    DryRun = "dryrun"
