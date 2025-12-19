@@ -1,6 +1,7 @@
 from app.core.constants import GeneratorBackend
 from app.core.interfaces import BaseGenerator, BaseRetriever
 from app.generation.adapters.dryrun_adapter import DryRunGenerator
+from app.generation.adapters.openai_adapter import OpenAIGenerator
 from app.generation.adapters.ollama_adapter import OllamaGenerator
 from app.generation.mock_generator import MockGenerator
 from app.retrieval.models import RetrievalRequest
@@ -57,7 +58,7 @@ async def get_generator(
             case GeneratorBackend.DryRun:
                 generator = DryRunGenerator()
             case GeneratorBackend.OPENAI:
-                generator = OllamaGenerator()
+                generator = OpenAIGenerator()
             case GeneratorBackend.Ollama:
                 generator = OllamaGenerator()
             case _:

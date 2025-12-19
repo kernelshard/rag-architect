@@ -19,3 +19,6 @@ class OpenAIGenerator(BaseGenerator):
         logger.debug(f"[OpenAIGenerator] would call model={self.model_name}")
         await asyncio.sleep(0.5)  # simulate network delay
         return f"[Simulated OpenAI: {self.model_name} for prompt: {prompt[:60]}...]"
+
+    def __repr__(self):
+        return f"OpenAIGenerator(model_name='{self.model_name}')"
