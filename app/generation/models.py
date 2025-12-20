@@ -11,7 +11,13 @@ class GenerationRequest(BaseModel):
     context_size: int = Field(
         3, description="The number of retrieved contexts to consider", ge=1
     )
-    model_name: str | None = "mock-llm"
+    model_name: str | None = Field(
+        "mock-llm", description="The name of the model to use for generation"
+    )
+    expected_doc_ids: list[str] | None = Field(
+        None,
+        description="Optional list of expected document IDs to guide the generation",
+    )
 
 
 class GenerateAnswer(BaseModel):

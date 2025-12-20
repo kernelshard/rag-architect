@@ -7,7 +7,7 @@ from app.core import start_time
 from app.retrieval.api import router as retrival_router
 from app.ingestion.api import router as ingestion_router
 from app.generation.api import router as generation_router
-from app.evaludation.api import router as evaluation_router
+from app.evaluation.api import router as evaluation_router
 
 
 router = APIRouter(prefix="/api/v1", tags=["api"])

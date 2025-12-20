@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.evaludation.aggregate import aggregate_traces
+from app.evaluation.aggregate import aggregate_traces
 
 
 router = APIRouter(prefix="/eval", tags=["evaluation"])
