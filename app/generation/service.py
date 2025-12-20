@@ -5,7 +5,7 @@ from app.generation.models import GenerateAnswer, GenerationRequest, GenerationR
 from app.generation.prompt_builder import build_prompt
 
 from app.core.interfaces import BaseGenerator, BaseRetriever
-from app.generation.trace_writer import write_trace
+from app.evaludation.trace_writer import write_trace
 
 
 logger = get_logger(__name__)
