@@ -83,6 +83,5 @@ async def generate_answer(
         answer=GenerateAnswer(
             text=answer_text,
             used_context=retrieved_chunks,
-            recall_at_k=recall_k,
         ),
     )
