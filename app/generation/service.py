@@ -1,11 +1,16 @@
 import time
 from app.core.logging import get_logger
-from app.core.metrics import APP_NAME, APP_PROMPT_BUILD_SECONDS
+from app.core.metrics import (
+    APP_NAME,
+    APP_PROMPT_BUILD_SECONDS,
+    APP_GENERATION_LATENCY_SECONDS,
+)
+from app.evaluation.recall import recall_at_k
 from app.generation.models import GenerateAnswer, GenerationRequest, GenerationResponse
 from app.generation.prompt_builder import build_prompt
 
 from app.core.interfaces import BaseGenerator, BaseRetriever
-from app.evaludation.trace_writer import write_trace
+from app.evaluation.trace_writer import write_trace
 
 
 logger = get_logger(__name__)
@@ -37,7 +42,6 @@ async def generate_answer(
         {"doc_id": "2", "score": 0.7, "metadata": {"source": "source2"}},
         ...
     ]
-    Note: Does not include original text; only doc_id and metadata.
     """
     logger.debug(f"Retrieved {len(retrieved_chunks)} chunks")
 
@@ -49,15 +53,29 @@ async def generate_answer(
     # Generation latency metrics
     t1 = time.monotonic()
     answer_text = await generator.generate(prompt=prompt)
-    APP_PROMPT_BUILD_SECONDS.labels(app_name=APP_NAME).observe(time.monotonic() - t1)
+    APP_GENERATION_LATENCY_SECONDS.labels(app_name=APP_NAME).observe(
+        time.monotonic() - t1
+    )
 
     logger.info(f"Generated answer for query='{req.query}'")
 
     # Write trace for the generation
+    recall_k = None
+    if req.expected_doc_ids:
+        recall_k = recall_at_k(
+            retrieved_ids=[chunk["doc_id"] for chunk in retrieved_chunks],
+            relevant_ids=set(req.expected_doc_ids),
+            k=req.context_size,
+        )
+        logger.info(
+            f"Recall@{req.context_size} for query='{req.query}': {recall_k:.2f}"
+        )
     write_trace(
         query=req.query,
         retrieved_ids=[chunk["doc_id"] for chunk in retrieved_chunks],
         answer_text=answer_text,
+        recall_k=recall_k,
+        faithfulness=None,
     )
 
     return GenerationResponse(

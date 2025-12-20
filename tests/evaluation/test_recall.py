@@ -1,4 +1,4 @@
-from app.evaludation.recall import recall_at_k
+from app.evaluation.recall import recall_at_k
 
 
 def test_recall_at_k_basic():
