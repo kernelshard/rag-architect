@@ -5,6 +5,7 @@ from app.generation.models import GenerateAnswer, GenerationRequest, GenerationR
 from app.generation.prompt_builder import build_prompt
 
 from app.core.interfaces import BaseGenerator, BaseRetriever
+from app.evaludation.trace_writer import write_trace
 
 
 logger = get_logger(__name__)
@@ -51,6 +52,13 @@ async def generate_answer(
     APP_PROMPT_BUILD_SECONDS.labels(app_name=APP_NAME).observe(time.monotonic() - t1)
 
     logger.info(f"Generated answer for query='{req.query}'")
+
+    # Write trace for the generation
+    write_trace(
+        query=req.query,
+        retrieved_ids=[chunk["doc_id"] for chunk in retrieved_chunks],
+        answer_text=answer_text,
+    )
 
     return GenerationResponse(
         query=req.query,
