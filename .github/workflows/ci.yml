@@ -28,3 +28,6 @@ jobs:
       - name: Run tests
         run: pytest -q
         continue-on-error: false
+      - name: RAG quality gate
+        run: python app/evaluation/quality_gate.py
+        continue-on-error: false
