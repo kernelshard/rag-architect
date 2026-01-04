@@ -2,7 +2,7 @@ import json
 import math
 from typing import Any
 
-from app.core.interfaces import BaseVectorSearchRepository
+from app.core.interfaces import BaseVectorSearchRepository, SearchResult
 import sqlite3
 
 
@@ -101,14 +101,14 @@ class SQLiteVectorRepo(BaseVectorSearchRepository):
                     if not all(metadata.get(k) == v for k, v in filters.items()):
                         continue
                 rows.append(
-                    {
-                        "doc_id": doc_id,
-                        "score": round(cosine(query_vector, vec), 3),
-                        "metadata": metadata if include_metadata else {},
-                    }
+                    SearchResult(
+                        id=doc_id,
+                        score=round(cosine(query_vector, vec), 3),
+                        metadata=metadata if include_metadata else {},
+                    )
                 )
         rows.sort(
-            key=lambda x: x["score"], reverse=True
+            key=lambda x: x.score, reverse=True
         )  # Sort by similarity descending, cause higher is better
         rows = rows[:top_k]
         return rows
