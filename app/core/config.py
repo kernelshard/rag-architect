@@ -14,10 +14,13 @@ class Settings(BaseSettings):
     USE_REAL_GENERATOR: bool = False
     GENERATOR_BACKEND: GeneratorBackend = GeneratorBackend.Mock
 
+    VECTOR_STORE: str = "memory"  # Options: "memory", "sqlite", "pinecone", etc.
+    VECTOR_STORE_PATH: str = "var/vector_store.sqlite"
+
     model_config = {
         "env_file": ".env",
         "env_file_encoding": "utf-8",
-        "extra": "ignore",
+        "extra": "ignore",  # ignore unknown env vars
         "populate_by_name": True,  # allowing alias mapping
         "use_enum_values": True,  # store enum values directly
     }
