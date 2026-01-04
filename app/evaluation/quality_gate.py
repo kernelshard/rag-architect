@@ -1,3 +1,4 @@
+import os
 import sys
 from pathlib import Path
 
@@ -8,39 +9,32 @@ if str(ROOT) not in sys.path:
 
 from app.evaluation.aggregate import aggregate_traces  # noqa: E402
 
-MIN_RECALL_K = 0.5
-MIN_FAITHFULNESS = None
-
 
 def run_quality_gate() -> int:
+    min_recall_k = float(os.getenv("MIN_RECALL_K", "0.5"))
+    min_faithfulness_env = os.getenv("MIN_FAITHFULNESS")
+    min_faithfulness = (
+        float(min_faithfulness_env) if min_faithfulness_env is not None else None
+    )
+
     s = aggregate_traces()
 
-    # No data -> don't fail the quality gate
+    # No data → don’t fail CI
     if s["runs"] == 0:
-        print("No evaluation runs found. Quality gate passed.")
         return 0
 
-    print(f"Evaluation results (n={s['runs']}):")
-    if s["avg_recall_k"] is not None:
-        print(f"  Recall@K: {s['avg_recall_k']:.3f} (threshold: {MIN_RECALL_K:.3f})")
-    if s["avg_faithfulness"] is not None:
-        threshold_str = (
-            f"{MIN_FAITHFULNESS:.3f}" if MIN_FAITHFULNESS is not None else "N/A"
-        )
-        print(
-            f"  Faithfulness: {s['avg_faithfulness']:.3f} (threshold: {threshold_str})"
-        )
-
-    if s["avg_recall_k"] is not None and s["avg_recall_k"] < MIN_RECALL_K:
-        print(
-            f"\n Quality gate FAILED: average Recall@K {s['avg_recall_k']:.3f} < {MIN_RECALL_K:.3f}"
-        )
+    if s["avg_recall_k"] is not None and s["avg_recall_k"] < min_recall_k:
+        print(f"Quality gate failed: avg_recall_k={s['avg_recall_k']} < {min_recall_k}")
         return 1
-    if MIN_FAITHFULNESS is not None and s["avg_faithfulness"] is not None:
-        if s["avg_faithfulness"] < MIN_FAITHFULNESS:
-            print(
-                f"\n Quality gate FAILED: average Faithfulness {s['avg_faithfulness']:.3f} < {MIN_FAITHFULNESS:.3f}"
-            )
+
+    if (
+        min_faithfulness is not None
+        and s["avg_faithfulness"] is not None
+        and s["avg_faithfulness"] < min_faithfulness
+    ):
+        print(
+            f"Quality gate failed: avg_faithfulness={s['avg_faithfulness']} < {min_faithfulness}"
+        )
         return 1
 
     return 0
